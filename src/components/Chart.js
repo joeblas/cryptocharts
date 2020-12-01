@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TradingViewChart from "kaktana-react-lightweight-charts";
 import axios from "axios";
 import { fromUnixTime, format } from "date-fns";
+import useCandlestickChart from "../hooks/useCandlestickChart";
 
 const chartOptions = {
   alignLabels: true,
@@ -19,36 +20,10 @@ const chartOptions = {
   },
 };
 
-function Chart() {
-  const [data, setData] = useState({ candlestickSeries: [{ data: [] }] });
-  useEffect(() => {
-    axios
-      .get(
-        "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=30",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Apikey ${process.env.REACT_APP_CRYPTOCOMPARE_API_KEY}`,
-          },
-        }
-      )
-      .then((res) => {
-        if (res.data.Response === "Success") {
-          const chartData = {
-            candlestickSeries: [
-              {
-                data: res.data.Data.Data.map((x) => ({
-                  ...x,
-                  time: format(fromUnixTime(x.time), "yyyy-MM-dd"),
-                })),
-              },
-            ],
-          };
-          setData(chartData);
-        }
-      });
-  }, []);
+// TODO: pull in the sentiment data from the CryptoEq API.
 
+function Chart() {
+  const { data } = useCandlestickChart()
   return (
     <>
       {data.candlestickSeries.length >= 1 ? (
